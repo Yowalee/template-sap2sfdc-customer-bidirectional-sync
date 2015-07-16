@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Template-sap2sfdc-customer-bidirectional-sync by Yowalee</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Template-sap2sfdc-customer-bidirectional-sync</h1>
+      <h2 class="project-tagline">Anypoint Template: SAP and Salesforce Customer/Account Bi-Directional Sync</h2>
+      <a href="https://github.com/Yowalee/template-sap2sfdc-customer-bidirectional-sync" class="btn">View on GitHub</a>
+      <a href="https://github.com/Yowalee/template-sap2sfdc-customer-bidirectional-sync/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Yowalee/template-sap2sfdc-customer-bidirectional-sync/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="anypoint-template-sap-and-salesforce-customeraccount-bi-directional-sync" class="anchor" href="#anypoint-template-sap-and-salesforce-customeraccount-bi-directional-sync" aria-hidden="true"><span class="octicon octicon-link"></span></a>Anypoint Template: SAP and Salesforce Customer/Account Bi-Directional Sync</h1>
+
+<ul>
+<li><a href="#licenseagreement">License Agreement</a></li>
+<li><a href="#usecase">Use Case</a></li>
+<li>
+<a href="#considerations">Considerations</a>
+
+<ul>
+<li><a href="#sapconsiderations">SAP Considerations</a></li>
+<li><a href="#salesforceconsiderations">Salesforce Considerations</a></li>
+</ul>
+</li>
+<li>
+<a href="#runit">Run it!</a>
+
+<ul>
+<li><a href="#runonopremise">Running on premise</a></li>
+<li><a href="#runonstudio">Running on Studio</a></li>
+<li><a href="#runonmuleesbstandalone">Running on Mule ESB stand alone</a></li>
+<li><a href="#runoncloudhub">Running on CloudHub</a></li>
+<li><a href="#deployingyouranypointtemplateoncloudhub">Deploying your Anypoint Template on CloudHub</a></li>
+<li><a href="#propertiestobeconfigured">Properties to be configured (With examples)</a></li>
+</ul>
+</li>
+<li><a href="#apicalls">API Calls</a></li>
+<li>
+<a href="#customizeit">Customize It!</a>
+
+<ul>
+<li><a href="#configxml">config.xml</a></li>
+<li><a href="#businesslogicxml">businessLogic.xml</a></li>
+<li><a href="#endpointsxml">endpoints.xml</a></li>
+<li><a href="#errorhandlingxml">errorHandling.xml</a></li>
+</ul>
+</li>
+</ul>
+
+<h1>
+<a id="license-agreement-" class="anchor" href="#license-agreement-" aria-hidden="true"><span class="octicon octicon-link"></span></a>License Agreement <a name="licenseagreement"></a>
+</h1>
+
+<p>Note that using this template is subject to the conditions of this <a href="AnypointTemplateLicense.pdf">License Agreement</a>.
+Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.</p>
+
+<h1>
+<a id="use-case-" class="anchor" href="#use-case-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use Case <a name="usecase"></a>
+</h1>
+
+<p>Use this template if you would like to sync Customers from SAP to Salesforce Accounts in manner real-time synchronization using Polling.
+The inbound SAP endpoint retrieves all Accounts in SAP using the custom BAPI <strong>ZMULE_CUSTOMER_GETLIST</strong> and transforms them to Salesforce Accounts.
+In the other direction, the synchronization is completed by polling Salesforce for Accounts and sending them to SAP using the standard IDoc DEBMAS01.</p>
+
+<h1>
+<a id="considerations-" class="anchor" href="#considerations-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Considerations <a name="considerations"></a>
+</h1>
+
+<p>To make this Anypoint Template run, there are certain preconditions that must be considered.
+All of them deal with the preparations in both SAP and SFDC systems, that must be made in order for all to run smoothly.
+<strong>Failling to do so could lead to unexpected behavior of the template.</strong></p>
+
+<p>Before continue with the use of this Anypoint Template, you may want to check out this <a href="http://www.mulesoft.org/documentation/display/current/SAP+Connector#SAPConnector-EnablingYourStudioProjectforSAP">Documentation Page</a>, that will teach you how to work 
+with SAP and Anypoint Studio-</p>
+
+<h2>
+<a id="disclaimer" class="anchor" href="#disclaimer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Disclaimer</h2>
+
+<p>This Anypoint template uses a few private Maven dependencies in oder to work. If you intend to run this template with Maven support, please continue reading.</p>
+
+<p>You will find that there are three dependencies in the pom.xml file that begin with the following group id: 
+    <strong>com.sap.conn.jco</strong> 
+These dependencies are private for Mulesoft and will cause you application not to build from a Maven command line. You need to replace them with "provided" scope and copy the libraries into the build path.</p>
+
+<h2>
+<a id="sap-considerations-" class="anchor" href="#sap-considerations-" aria-hidden="true"><span class="octicon octicon-link"></span></a>SAP Considerations <a name="sapconsiderations"></a>
+</h2>
+
+<p>There may be a few things that you need to know regarding SAP, in order for this template to work.</p>
+
+<h3>
+<a id="as-source-of-data" class="anchor" href="#as-source-of-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>As source of data</h3>
+
+<p>SAP backend system is used as source of data. SAP Connector is used to send and receive the data from the SAP backend. 
+The connector can either use RFC calls of BAPI functions and/or IDoc messages for data exchange and needs to be properly customized as per chapter: <a href="#propertiestobeconfigured">Properties to be configured</a></p>
+
+<p>In order for this Anypoint Template to work, there are a few things that need to be done in SAP first.</p>
+
+<ol>
+<li><p>RFC destination
+of type "T = TCP/IP Connection" pointing to Program ID on gateway host needs to be created. The destination uses Unicode communication type with target system.</p></li>
+<li><p>Program ID registration
+RFC SDK is used to register Program ID on gateway host. Same Program ID name is used here as in the RFC destination.</p></li>
+<li><p>Partner Profile
+needs to be customized; type of Logical System as partner type. Message type DEBMAS is defined as Outbound and Inbound parameter. For Outbound parameter: As receiver port an RFC destination created earlier is used. IDoc Type DEBMAS01 is defined. For Inbound parameter: Process Code DEBM is used. IDoc Type DEBMAS01 is defined.</p></li>
+<li><p>Partner Port
+needs to be defined for type of IDoc record type of SAP release 4.x as its version. As RFC destination same RFC destination created earlier is used.</p></li>
+</ol>
+
+<p> 
+ </p>
+
+<h2>
+<a id="salesforce-considerations-" class="anchor" href="#salesforce-considerations-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Salesforce Considerations <a name="salesforceconsiderations"></a>
+</h2>
+
+<p>There may be a few things that you need to know regarding Salesforce, in order for this template to work.</p>
+
+<p>In order to have this template working as expected, you should be aware of your own Salesforce field configuration.</p>
+
+<h3>
+<a id="faq" class="anchor" href="#faq" aria-hidden="true"><span class="octicon octicon-link"></span></a>FAQ</h3>
+
+<ul>
+<li>
+<p>Where can I check that the field configuration for my Salesforce instance is the right one?</p>
+
+<p><a href="https://help.salesforce.com/HTViewHelpDoc?id=checking_field_accessibility_for_a_particular_field.htm&amp;language=en_US">Salesforce: Checking Field Accessibility for a Particular Field</a></p>
+</li>
+</ul>
+
+<ul>
+<li>
+<p>Can I modify the Field Access Settings? How?</p>
+
+<p><a href="https://help.salesforce.com/HTViewHelpDoc?id=modifying_field_access_settings.htm&amp;language=en_US">Salesforce: Modifying Field Access Settings</a></p>
+</li>
+</ul>
+
+<h3>
+<a id="as-source-of-data-1" class="anchor" href="#as-source-of-data-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>As source of data</h3>
+
+<p>If the user configured in the template for the source system does not have at least <em>read only</em> permissions for the fields that are fetched, then a <em>InvalidFieldFault</em> API fault will show up.</p>
+
+<pre><code>java.lang.RuntimeException: [InvalidFieldFault [ApiQueryFault [ApiFault  exceptionCode='INVALID_FIELD'
+exceptionMessage='
+Account.Phone, Account.Rating, Account.RecordTypeId, Account.ShippingCity
+^
+ERROR at Row:1:Column:486
+No such column 'RecordTypeId' on entity 'Account'. If you are attempting to use a custom field, be sure to append the '__c' after the custom field name. Please reference your WSDL or the describe call for the appropriate names.'
+]
+row='1'
+column='486'
+]
+]
+</code></pre>
+
+<h3>
+<a id="as-destination-of-data" class="anchor" href="#as-destination-of-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>As destination of data</h3>
+
+<p>This template makes use of the <code>External ID</code> field offered by Salesforce. Here is a short description on how SFDC define external ID's </p>
+
+<ul>
+<li><a href="http://help.salesforce.com/apex/HTViewHelpDoc?id=faq_import_general_what_is_an_external.htm">What is an external ID?</a></li>
+</ul>
+
+<p>The templates uses the External ID in order to do xRef between the entities in both systems. The idea is, once an entity is created in SFDC it's decorated with an ID from the source system which will be used afteward for the template to reference it.</p>
+
+<p>You will need to create a new custom field in your <strong>Product</strong> entity in SFDC with the following name: </p>
+
+<ul>
+<li><code>sap_external_id</code></li>
+</ul>
+
+<p>For instructions on how to create a custom field in SFDC plase check this link:</p>
+
+<ul>
+<li><a href="https://help.salesforce.com/HTViewHelpDoc?id=adding_fields.htm">Create Custom Fields</a></li>
+</ul>
+
+<h1>
+<a id="run-it-" class="anchor" href="#run-it-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Run it! <a name="runit"></a>
+</h1>
+
+<p>Simple steps to get SAP and Salesforce Customer/Account Bi-Directional Sync running.</p>
+
+<h2>
+<a id="running-on-premise-" class="anchor" href="#running-on-premise-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running on premise <a name="runonopremise"></a>
+</h2>
+
+<p>In this section we detail the way you should run your Anypoint Template on your computer.</p>
+
+<h3>
+<a id="where-to-download-mule-studio-and-mule-esb" class="anchor" href="#where-to-download-mule-studio-and-mule-esb" aria-hidden="true"><span class="octicon octicon-link"></span></a>Where to Download Mule Studio and Mule ESB</h3>
+
+<p>First thing to know if you are a newcomer to Mule is where to get the tools.</p>
+
+<ul>
+<li>You can download Mule Studio from this <a href="http://www.mulesoft.com/platform/mule-studio">Location</a>
+</li>
+<li>You can download Mule ESB from this <a href="http://www.mulesoft.com/platform/soa/mule-esb-open-source-esb">Location</a>
+</li>
+</ul>
+
+<h3>
+<a id="importing-an-anypoint-template-into-studio" class="anchor" href="#importing-an-anypoint-template-into-studio" aria-hidden="true"><span class="octicon octicon-link"></span></a>Importing an Anypoint Template into Studio</h3>
+
+<p>Mule Studio offers several ways to import a project into the workspace, for instance: </p>
+
+<ul>
+<li>Anypoint Studio generated Deployable Archive (.zip)</li>
+<li>Anypoint Studio Project from External Location</li>
+<li>Maven-based Mule Project from pom.xml</li>
+<li>Mule ESB Configuration XML from External Location</li>
+</ul>
+
+<p>You can find a detailed description on how to do so in this <a href="http://www.mulesoft.org/documentation/display/current/Importing+and+Exporting+in+Studio">Documentation Page</a>.</p>
+
+<h3>
+<a id="running-on-studio-" class="anchor" href="#running-on-studio-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running on Studio <a name="runonstudio"></a>
+</h3>
+
+<p>Once you have imported you Anypoint Template into Anypoint Studio you need to follow these steps to run it:</p>
+
+<ul>
+<li>Locate the properties file <code>mule.dev.properties</code>, in src/main/resources</li>
+<li>Complete all the properties required as per the examples in the section <a href="#propertiestobeconfigured">Properties to be configured</a>
+</li>
+<li>Once that is done, right click on you Anypoint Template project folder </li>
+<li>Hover you mouse over <code>"Run as"</code>
+</li>
+<li><p>Click on  <code>"Mule Application"</code>
+In order to make this Anypoint Template run on Mule Studio there are a few extra steps that needs to be made.
+Please check this Documentation Page:</p></li>
+<li><p><a href="http://www.mulesoft.org/documentation/display/current/SAP+Connector#SAPConnector-EnablingYourStudioProjectforSAP">Enabling Your Studio Project for SAP</a></p></li>
+</ul>
+
+<h3>
+<a id="running-on-mule-esb-stand-alone-" class="anchor" href="#running-on-mule-esb-stand-alone-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running on Mule ESB stand alone <a name="runonmuleesbstandalone"></a>
+</h3>
+
+<p>Complete all properties in one of the property files, for example in <a href="../master/src/main/resources/mule.prod.properties">mule.prod.properties</a> and run your app with the corresponding environment variable to use it. To follow the example, this will be <code>mule.env=prod</code>. </p>
+
+<h2>
+<a id="running-on-cloudhub-" class="anchor" href="#running-on-cloudhub-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running on CloudHub <a name="runoncloudhub"></a>
+</h2>
+
+<p>While <a href="http://www.mulesoft.org/documentation/display/current/Hello+World+on+CloudHub">creating your application on CloudHub</a> (Or you can do it later as a next step), you need to go to Deployment &gt; Advanced to set all environment variables detailed in <strong>Properties to be configured</strong> as well as the <strong>mule.env</strong>.</p>
+
+<h3>
+<a id="deploying-your-anypoint-template-on-cloudhub-" class="anchor" href="#deploying-your-anypoint-template-on-cloudhub-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deploying your Anypoint Template on CloudHub <a name="deployingyouranypointtemplateoncloudhub"></a>
+</h3>
+
+<p>Mule Studio provides you with really easy way to deploy your Template directly to CloudHub, for the specific steps to do so please check this <a href="http://www.mulesoft.org/documentation/display/current/Deploying+Mule+Applications#DeployingMuleApplications-DeploytoCloudHub">link</a></p>
+
+<h2>
+<a id="properties-to-be-configured-with-examples-" class="anchor" href="#properties-to-be-configured-with-examples-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Properties to be configured (With examples) <a name="propertiestobeconfigured"></a>
+</h2>
+
+<p>In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. Detail list with examples:</p>
+
+<h3>
+<a id="application-configuration" class="anchor" href="#application-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application configuration</h3>
+
+<ul>
+<li>polling.frequency <code>20000</code>
+</li>
+<li>polling.start.delay <code>1000</code>
+</li>
+<li>watermark.default.expression <code>2014-08-01T10:46:00.000Z</code>
+</li>
+<li><p>watermark.default.expression.sap <code>2014-08-01T12:29:44Z</code></p></li>
+<li><p>page.size <code>100</code></p></li>
+<li>sapOffset <code>+00:00:00</code>
+</li>
+<li>salesforceOffset <code>+00:00:00</code>
+</li>
+</ul>
+
+<p><strong>SAP Connector configuration</strong></p>
+
+<ul>
+<li>sap.jco.ashost <code>your.sap.address.com</code>
+</li>
+<li>sap.jco.user <code>SAP_USER</code>
+</li>
+<li>sap.jco.passwd <code>SAP_PASS</code>
+</li>
+<li>sap.jco.sysnr <code>14</code>
+</li>
+<li>sap.jco.client <code>800</code>
+</li>
+<li><p>sap.jco.lang <code>EN</code></p></li>
+<li><p>sap.default.accountGroup <code>ZAG2</code></p></li>
+</ul>
+
+<p><strong>SAP Endpoint configuration</strong></p>
+
+<ul>
+<li>sap.jco.connectioncount <code>2</code>
+</li>
+<li>sap.jco.gwhost <code>your.sap.addres.com</code>
+</li>
+<li>sap.jco.gwservice <code>sapgw14</code>
+</li>
+<li>sap.jco.idoc.programid <code>PROGRAM_ID</code>
+</li>
+</ul>
+
+<p><strong>SalesForce Connector configuration</strong></p>
+
+<ul>
+<li>sfdc.username <code>bob.dylan@sfdc</code>
+</li>
+<li>sfdc.password <code>DylanPassword123</code>
+</li>
+<li>sfdc.securityToken <code>avsfwCUl7apQs56Xq2AKi3X</code>
+</li>
+<li>sfdc.url <code>https://test.salesforce.com/services/Soap/u/32.0</code>
+</li>
+<li>sfdc.integration.user.id <code>00520000003LtvG</code>
+</li>
+</ul>
+
+<h1>
+<a id="api-calls-" class="anchor" href="#api-calls-" aria-hidden="true"><span class="octicon octicon-link"></span></a>API Calls <a name="apicalls"></a>
+</h1>
+
+<p>SalesForce imposes limits on the number of API Calls that can be made.
+Therefore calculating this amount may be an important factor to
+consider. Customer migration template calls to the API can be
+calculated using the formula:</p>
+
+<p><strong>X / 200</strong></p>
+
+<p>Being X the number of Accounts to be synchronized on each run.</p>
+
+<p>The division by 200 is because, by default, Accounts are gathered in groups
+of 200 for each Upsert API Call in the commit step. Also consider
+that this calls are executed repeatedly every polling cycle.</p>
+
+<p>For instance if 10 records are fetched from origin instance, then 1 api
+calls to SFDC will be made ( 1).</p>
+
+<h1>
+<a id="customize-it" class="anchor" href="#customize-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>Customize It!<a name="customizeit"></a>
+</h1>
+
+<p>This brief guide intends to give a high level idea of how this Anypoint Template is built and how you can change it according to your needs.
+As mule applications are based on XML files, this page will be organized by describing all the XML that conform the Anypoint Template.
+Of course more files will be found such as Test Classes and <a href="http://www.mulesoft.org/documentation/display/current/Application+Format">Mule Application Files</a>, but to keep it simple we will focus on the XMLs.</p>
+
+<p>Here is a list of the main XML files you'll find in this application:</p>
+
+<ul>
+<li><a href="#configxml">config.xml</a></li>
+<li><a href="#endpointsxml">endpoints.xml</a></li>
+<li><a href="#businesslogicxml">businessLogic.xml</a></li>
+<li><a href="#errorhandlingxml">errorHandling.xml</a></li>
+</ul>
+
+<h2>
+<a id="configxml" class="anchor" href="#configxml" aria-hidden="true"><span class="octicon octicon-link"></span></a>config.xml<a name="configxml"></a>
+</h2>
+
+<p>Configuration for Connectors and <a href="http://www.mulesoft.org/documentation/display/current/Configuring+Properties">Properties Place Holders</a> are set in this file. <strong>Even you can change the configuration here, all parameters that can be modified here are in properties file, and this is the recommended place to do it so.</strong> Of course if you want to do core changes to the logic you will probably need to modify this file.</p>
+
+<p>In the visual editor they can be found on the <em>Global Element</em> tab.</p>
+
+<h2>
+<a id="businesslogicxml" class="anchor" href="#businesslogicxml" aria-hidden="true"><span class="octicon octicon-link"></span></a>businessLogic.xml<a name="businesslogicxml"></a>
+</h2>
+
+<p>The functional aspect of the Anypoint Template is implemented on this XML, directed by two batch jobs that will be responsible for creations/updates of Customers and Accounts in both ways. The several message processors constitute four high level actions that fully implement the logic of this Anypoint Template:</p>
+
+<ol>
+<li>Job executions are invoked from the trigger flows (endpoints.xml) everytime there is a new query executed asking for created/updated Contacts or Accounts.</li>
+<li>From SAP to SFDC: during the Process stage, each SAP Customer will be mapped into an SFDC Account and matched by name with the existent ones in the SFDC instance. After that, the Account will be upserted to the SFDC instance. </li>
+<li>From SFDC to SAP: during the Process stage, all the information needed to upsert the Customer will be retrieved from the SAP instance, and then the original Account will be mapped into a SAP Customer to proceed with the upsert.</li>
+<li>Finally during the On Complete stage, the Anypoint Template will unlock the processing for allowing the other direction to be executed.</li>
+</ol>
+
+<h2>
+<a id="endpointsxml" class="anchor" href="#endpointsxml" aria-hidden="true"><span class="octicon octicon-link"></span></a>endpoints.xml<a name="endpointsxml"></a>
+</h2>
+
+<p>This is file is conformed by a Flow containing the endpoints for triggering the template and retrieving the objects that meet the defined criteria in the query. And then executing the batch job process with the query results.</p>
+
+<h2>
+<a id="errorhandlingxml" class="anchor" href="#errorhandlingxml" aria-hidden="true"><span class="octicon octicon-link"></span></a>errorHandling.xml<a name="errorhandlingxml"></a>
+</h2>
+
+<p>This is the right place to handle how your integration will react depending on the different exceptions. 
+This file holds a <a href="http://www.mulesoft.org/documentation/display/current/Choice+Exception+Strategy">Choice Exception Strategy</a> that is referenced by the main flow in the business logic.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Yowalee/template-sap2sfdc-customer-bidirectional-sync">Template-sap2sfdc-customer-bidirectional-sync</a> is maintained by <a href="https://github.com/Yowalee">Yowalee</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
